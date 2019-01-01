@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,initial-scale=1.0,user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<title>添加内容</title>
+<link href="scripts/artdialog/ui-dialog.css" rel="stylesheet" type="text/css" />
+<link href="skin/default/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" charset="utf-8" src="scripts/jquery/jquery-1.11.2.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="scripts/jquery/Validform_v5.3.2_min.js"></script>
+<script type="text/javascript" charset="utf-8" src="scripts/datepicker/WdatePicker.js"></script>
+<script type="text/javascript" charset="utf-8" src="scripts/artdialog/dialog-plus-min.js"></script>
+<script type="text/javascript" charset="utf-8" src="scripts/webuploader/webuploader.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="editor/kindeditor-min.js"></script>
+<script type="text/javascript" charset="utf-8" src="js/uploader.js"></script>
+<script type="text/javascript" charset="utf-8" src="js/laymain.js"></script>
+<script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+<script type="text/javascript" charset="utf-8" src="js/jquery.pager.js"></script>
+<script type="text/javascript" charset="utf-8" src="js/jquery.scrollTo-min.js"></script>
+<script type="text/javascript" charset="utf-8" src="js/jquery.format.js"></script>
+<script type="text/javascript">
+    $(function () {
+        //初始化表单验证
+        $("#form1").initValidform();
+        //切换内容
+		$(".radio-tab").find("input").click(function () {
+			var tabNum = parseInt($(this).index()-1)/2;
+			$(".tab-radio").hide();
+			$(".tab-radio").eq(tabNum).show();
+			$(".page-footer").ruleLayoutFooter();
+		});
+			$("#ddlTemplateId").bind("change", function(){  
+			$(".tab-template").hide();
+			$(".tab-template").eq(this.value).show();
+		}); 
+
+        //初始化编辑器
+        var editor = KindEditor.create('.editor', {
+            width: '100%',
+            height: '350px',
+            resizeType: 1,
+            uploadJson: 'tools/upload_ajax.html?action=EditorFile&IsWater=1',
+            fileManagerJson: 'tools/upload_ajax.html?action=ManagerFile',
+            allowFileManager: true
+        });
+        var editorMini = KindEditor.create('.editor-mini', {
+            width: '100%',
+            height: '250px',
+            resizeType: 1,
+            uploadJson: 'tools/upload_ajax.html?action=EditorFile&IsWater=1',
+            items: [
+				'fontname', 'fontsize', '|', 'forecolor', 'hilitecolor', 'bold', 'italic', 'underline',
+				'removeformat', '|', 'justifyleft', 'justifycenter', 'justifyright', 'insertorderedlist',
+				'insertunorderedlist', '|', 'emoticons', 'image', 'link']
+        });
+
+        //初始化上传控件
+        $(".upload-img").InitUploader({ filesize: "10240", sendurl: "tools/upload_ajax.html", swf: "scripts/webuploader/uploader.swf", filetypes: "gif,jpg,png,bmp,rar,zip,doc,xls,txt" });
+        $(".upload-video").InitUploader({ filesize: "102400", sendurl: "tools/upload_ajax.html", swf: "scripts/webuploader/uploader.swf", filetypes: "flv,mp3,mp4,avi" });
+        $(".upload-album").InitUploader({ btntext: "批量上传", multiple: true, water: true, thumbnail: true, filesize: "10240", sendurl: "tools/upload_ajax.html", swf: "scripts/webuploader/uploader.swf" });
+
+        //设置封面图片的样式
+        $(".photo-list ul li .img-box img").each(function () {
+            if ($(this).attr("src") == $("#hidFocusPhoto").val()) {
+                $(this).parent().addClass("selected");
+            }
+        });
+
+        //创建上传附件
+        $(".attach-btn").click(function () {
+            showAttachDialog();
+        });
+
+        //创建商品规格
+        $(".spec-btn").click(function () {
+            showSpecDialog();
+        });
+
+        //赋值规格市场价格
+        $("#field_control_market_price").blur(function () {
+            $("#div_spec__container").find("input[name='spec_market_price']").val($(this).val());
+        });
+        //赋值规格销售价格
+        $("#field_control_sell_price").blur(function () {
+            $("#div_spec__container").find("input[name='spec_sell_price']").val($(this).val());
+        });
+
+        $('input[name="cbxisshow"]').unbind('click').bind('click', function () {
+            if ($(this).is(':checked')) {
+                $(this).siblings('input[name="spec_is_show"]').val('1');
+            } else {
+                $(this).siblings('input[name="spec_is_show"]').val('0');
+            }
+        });
+    });
+
+    //删除附件节点
+    function delAttachNode(obj) {
+        $(obj).parent().remove();
+    }
+
+    //初始化规格窗口
+    function showSpecDialog() {
+        var d = top.dialog({
+            id: 'specDialogId',
+            padding: 0,
+            title: "商品规格",
+            url: 'dialog_spec_item.html'
+        }).showModal();
+        //将容器对象传进去
+        d.data = $("#item_box");
+    }
+    //初始化会员组价格窗口
+    function showPriceDialog(obj) {
+        var d = top.dialog({
+            padding: 0,
+            title: "会员组价格",
+            url: 'dialog/dialog_group_price.html',
+            width: 400
+        }).showModal();
+        //将对象传进去
+        d.data = obj;
+    }
+    //计算出最小的市场价格
+    function countMarketPrice(obj) {
+        var objName = $(obj).attr("name");
+        var minValue = parseFloat($(obj).val());
+        $("input[name='" + objName + "']").each(function () {
+            if ($(this).val().length > 0) {
+                if (parseFloat($(this).val()) < minValue) {
+                    minValue = parseFloat($(this).val());
+                }
+            }
+        });
+        $("#field_control_market_price").val(minValue);
+    }
+    //计算最小的销售价格
+    function countSellPrice(obj) {
+        var objName = $(obj).attr("name");
+        var minValue = parseFloat($(obj).val());
+        $("input[name='" + objName + "']").each(function () {
+            if ($(this).val().length > 0) {
+                if (parseFloat($(this).val()) < minValue) {
+                    minValue = parseFloat($(this).val());
+                }
+            }
+        });
+        $("#field_control_sell_price").val(minValue);
+    }
+    //计算库存总数量
+    function countStockQuantity(obj) {
+        var objName = $(obj).attr("name");
+        var countValue = 0;
+        $("input[name='" + objName + "']").each(function () {
+            if ($(this).val().length > 0) {
+                countValue += parseFloat($(this).val());
+            }
+        });
+        $("#field_control_stock_quantity").val(countValue);
+    }
+</script>
+</head>
+<body class="mainbody">
+<form method="post" action="article_edit.html?action=Add&amp;channel_id=7" id="form1">
+  <!--导航栏-->
+  <div class="location"> <a href="article_list.html?channel_id=7" class="back"><i></i><span>返回列表页</span></a> <a href="center.html" class="home"><i></i><span>首页</span></a> <i class="arrow"></i> <a href="article_list.html?channel_id=7"><span>内容管理</span></a> <i class="arrow"></i> <span>编辑内容</span> </div>
+  <div class="line10"></div>
+  <!--/导航栏-->
+  <!--内容-->
+  <div id="floatHead" class="content-tab-wrap">
+    <div class="content-tab">
+      <div class="content-tab-ul-wrap">
+        <ul>
+          <li><a class="selected" href="javascript:;">基本信息</a></li>
+          <li id="field_tab_item"><a href="javascript:;">扩展选项</a></li>
+          <li><a href="javascript:;">详细描述</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="tab-content">
+    <dl>
+      <dt>所属类别</dt>
+      <dd>
+        <div class="rule-single-select">
+          <select name="ddlCategoryId" id="ddlCategoryId" datatype="*" sucmsg=" ">
+            <option value="">请选择类别...</option>
+            <option value="57">笔</option>
+            <option value="66">　├ 滚珠笔</option>
+            <option value="75">　├ 自来水笔</option>
+            <option value="76">　├ 圆珠笔</option>
+            <option value="56">珠宝</option>
+            <option value="67">　├ 手链</option>
+          </select>
+        </div>
+      </dd>
+    </dl>
+    <dl id="div_brands">
+      <dt>商品类型</dt>
+      <dd>
+        <div class="rule-single-select">
+          <select name="ddlBrandsId" id="ddlBrandsId" datatype="*" sucmsg=" ">
+            <option value="">请选择类型...</option>
+            <option value="1">服务</option>
+            <option value="2">实体商品</option>
+          </select>
+        </div>
+      </dd>
+    </dl>
+    <dl id="div_supplier">
+      <dt>供应商家</dt>
+      <dd>
+        <input name="txtArticleTitle" type="text" maxlength="255" id="txtArticleTitle" class="input txt" />
+        <span class="Validform_checktip">*请填写供应商编号，如果是平台自营则留空</span> </dd>
+    </dl>
+    <dl>
+      <dt>显示状态</dt>
+      <dd>
+        <div class="rule-multi-radio">
+          <input id="rblStatus_0" type="radio" name="rblStatus" value="0" checked="checked" />
+          <label for="rblStatus_0">正常</label>
+          <input id="rblStatus_1" type="radio" name="rblStatus" value="1" />
+          <label for="rblStatus_1">待审核</label>
+          <input id="rblStatus_2" type="radio" name="rblStatus" value="2" />
+          <label for="rblStatus_2">不显示</label>
+        </div>
+      </dd>
+    </dl>
+    <dl>
+      <dt>内容标题</dt>
+      <dd>
+        <input name="txtTitle" type="text" id="txtTitle" class="input normal" datatype="*2-100" sucmsg=" " />
+        <span class="Validform_checktip">*标题最多100个字符</span> </dd>
+    </dl>
+    <dl>
+      <dt>封面图片</dt>
+      <dd>
+        <input name="txtImgUrl" type="text" id="txtImgUrl" class="input normal upload-path" />
+        <div class="upload-box upload-img"></div>
+      </dd>
+    </dl>
+    <dl id="div_goods_no">
+      <dt><span id="div_goods_no_title">商品货号</span></dt>
+      <dd>
+        <input name="field_control_goods_no" type="text" id="field_control_goods_no" class="input normal" datatype="*0-100" sucmsg=" " />
+        <span id="div_goods_no_tip" class="Validform_checktip">允许字母、下划线，100个字符内</span> </dd>
+    </dl>
+    <dl id="div_stock_quantity">
+      <dt><span id="div_stock_quantity_title">库存数量</span></dt>
+      <dd>
+        <input name="field_control_stock_quantity" type="text" value="0" id="field_control_stock_quantity" class="input small" datatype="n" sucmsg=" " />
+        <span id="div_stock_quantity_tip" class="Validform_checktip">库存数量为0时显示缺货状态</span> </dd>
+    </dl>
+    <dl id="div_sell_price">
+      <dt><span id="div_sell_price_title">销售价格</span></dt>
+      <dd>
+        <input name="field_control_sell_price" type="text" value="0" id="field_control_sell_price" class="input small" datatype="/^(([1-9]{1}\d*)|([0]{1}))(\.(\d){1,2})?$/" sucmsg=" " />
+        元 <span id="div_sell_price_tip" class="Validform_checktip">*出售的实际交易价格</span> </dd>
+    </dl>
+    <dl id="div_sell_price">
+      <dt><span id="div_sell_price_title">销售价格</span></dt>
+      <dd>
+        <input name="field_control_sell_price" type="text" value="0" id="field_control_sell_price" class="input small" datatype="/^(([1-9]{1}\d*)|([0]{1}))(\.(\d){1,2})?$/" sucmsg=" " />
+        元 <span id="div_sell_price_tip" class="Validform_checktip">*出售的实际交易价格</span> </dd>
+    </dl>
+    <dl id="div_spec__container">
+      <dt>商品规格</dt>
+      <dd> <a class="icon-btn add spec-btn"><span>设置规格</span></a>
+        <div class="table-container" style="padding-top:10px;">
+          <input type="hidden" name="hide_goods_spec_list" id="hide_goods_spec_list" />
+          <table border="0" cellspacing="0" cellpadding="0" class="border-table" width="82%">
+            <thead>
+              <tr>
+                <th width="8%">显示</th>
+                <th align="center" width="15%">货号</th>
+                <th width="10%">销售价(元)</th>
+                <th width="10%">库存(件)</th>
+                <th width="30%">规格</th>
+              </tr>
+            </thead>
+            <tbody id="item_box">
+            </tbody>
+          </table>
+        </div>
+      </dd>
+    </dl>
+    <dl>
+      <dt>排序数字</dt>
+      <dd>
+        <input name="txtSortId" type="text" value="99" id="txtSortId" class="input small" datatype="n" sucmsg=" " />
+        <span class="Validform_checktip">*数字，越小越向前</span> </dd>
+    </dl>
+    <dl>
+      <dt>发布时间</dt>
+      <dd>
+        <input name="txtAddTime" type="text" id="txtAddTime" class="input rule-date-input" onFocus="WdatePicker({dateFmt:&#39;yyyy-MM-dd&#39;})" datatype="/^\s*$|^\d{4}\-\d{1,2}\-\d{1,2}\s{1}(\d{1,2}:){2}\d{1,2}$/" errormsg="请选择正确的日期" sucmsg=" " />
+        <span class="Validform_checktip">不选择默认当前发布时间</span> </dd>
+    </dl>
+  </div>
+  <div id="field_tab_content" class="tab-content" style="display:none">
+    <dl id="dl_field_control_65">
+      <dt>人群</dt>
+      <dd>
+        <div class="rule-multi-radio"><span id="field_control_renqun">
+          <input id="field_control_renqun_0" type="radio" name="field_control_renqun" value="1" />
+          <label for="field_control_renqun_0">绅士系列</label>
+          <input id="field_control_renqun_1" type="radio" name="field_control_renqun" value="2" />
+          <label for="field_control_renqun_1">淑女系列</label>
+          </span></div>
+        <span class="Validform_checktip"></span></dd>
+    </dl>
+    <dl id="dl_field_control_63">
+      <dt>表带</dt>
+      <dd>
+        <div class="rule-multi-checkbox"><span id="field_control_biaodai">
+          <input id="field_control_biaodai_0" type="checkbox" name="field_control_biaodai$0" value="1" />
+          <label for="field_control_biaodai_0">钢质</label>
+          <input id="field_control_biaodai_1" type="checkbox" name="field_control_biaodai$1" value="2" />
+          <label for="field_control_biaodai_1">真皮</label>
+          <input id="field_control_biaodai_2" type="checkbox" name="field_control_biaodai$2" value="3" />
+          <label for="field_control_biaodai_2">鳄鱼皮</label>
+          <input id="field_control_biaodai_3" type="checkbox" name="field_control_biaodai$3" value="4" />
+          <label for="field_control_biaodai_3">橡胶</label>
+          <input id="field_control_biaodai_4" type="checkbox" name="field_control_biaodai$4" value="5" />
+          <label for="field_control_biaodai_4">18K玫瑰金</label>
+          <input id="field_control_biaodai_5" type="checkbox" name="field_control_biaodai$5" value="6" />
+          <label for="field_control_biaodai_5">18K白金</label>
+          <input id="field_control_biaodai_6" type="checkbox" name="field_control_biaodai$6" value="7" />
+          <label for="field_control_biaodai_6">镶钻</label>
+          </span></div>
+        <span class="Validform_checktip"></span></dd>
+    </dl>
+  </div>
+  <div class="tab-content" style="display:none">
+    <dl class="radio-tab">
+      <dt>内容模板</dt>
+      <dd>
+        <div class="rule-multi-radio">
+          <input id="rblSmsType_0" type="radio" name="rblSmsType" value="1" checked="checked"/>
+          <label for="rblSmsType_0">图片</label>
+          <input id="rblSmsType_1" type="radio" name="rblSmsType" value="2"/>
+          <label for="rblSmsType_1">富文本</label>
+          <input id="rblSmsType_2" type="radio" name="rblSmsType" value="3"/>
+          <label for="rblSmsType_2">模板</label>
+        </div>
+      </dd>
+    </dl>
+    <div class="tab-radio">
+      <dl>
+        <dt>上传图片</dt>
+        <dd>
+          <input name="txtImgUrl" type="text" id="txtImgUrl" class="input normal upload-path" />
+          <div class="upload-box upload-img"></div>
+        </dd>
+      </dl>
+    </div>
+    <div class="tab-radio" style="display:none">
+      <dl>
+        <dt>介绍内容</dt>
+        <dd>
+          <textarea name="txtContent" id="txtContent" class="editor" style="visibility:hidden;"></textarea>
+          <span class="Validform_checktip">不填写则自动截取内容前255字符</span> </dd>
+      </dl>
+    </div>
+    <div class="tab-radio" style="display:none">
+      <dl id="div_template">
+        <dt>展示模板</dt>
+        <dd>
+          <div class="rule-single-select">
+            <select name="ddlTemplateId" id="ddlTemplateId" datatype="*" sucmsg=" ">
+              <option value="0">模板一</option>
+              <option value="1">模板二</option>
+              <option value="2">模板三</option>
+            </select>
+          </div>
+        </dd>
+      </dl>
+      <div class="tab-template">
+        <dl>
+          <dt>模板一内容</dt>
+          <dd>
+            <textarea name="txtZhaiyao" rows="2" cols="20" id="txtZhaiyao" class="input" datatype="*0-255" sucmsg=" ">
+</textarea>
+            <span class="Validform_checktip">不填写则自动截取内容前255字符</span> </dd>
+        </dl>
+      </div>
+      <div class="tab-template" style="display:none">
+        <dl>
+          <dt>模板二内容</dt>
+          <dd>
+            <textarea name="txtZhaiyao" rows="2" cols="20" id="txtZhaiyao" class="input" datatype="*0-255" sucmsg=" ">
+</textarea>
+            <span class="Validform_checktip">不填写则自动截取内容前255字符</span> </dd>
+        </dl>
+      </div>
+      <div class="tab-template" style="display:none">
+        <dl>
+          <dt>模板三内容</dt>
+          <dd>
+            <textarea name="txtZhaiyao" rows="2" cols="20" id="txtZhaiyao" class="input" datatype="*0-255" sucmsg=" ">
+</textarea>
+            <span class="Validform_checktip">不填写则自动截取内容前255字符</span> </dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+  <!--/内容-->
+  <!--工具栏-->
+  <div class="page-footer">
+    <div class="btn-wrap">
+      <input type="submit" name="btnSubmit" value="提交保存" id="btnSubmit" class="btn" />
+      <input name="btnReturn" type="button" value="返回上一页" class="btn yellow" onClick="javascript:history.back(-1);" />
+    </div>
+  </div>
+  <!--/工具栏-->
+</form>
+</body>
+</html>
+<script type="text/javascript" charset="utf-8" src="js/redirect.js"></script>

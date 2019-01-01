@@ -1,0 +1,372 @@
+管理员相关
+	1
+	功能：管理员登录
+	链接：localhost:8080/elantrip-server/admin/login.do?
+	参数：adminName，passWord（非空）
+
+1、门店相关
+	1
+	功能：导入门店excel表格
+	连接：localhost:8080/elantrip-server/shop/addShopBatch.do?
+	入参：shopFile（File,非空）
+	返参：{"code": "0",
+  "message": "批量导入成功！",
+  "total": 0,
+  "result": 1}
+
+	2.
+	功能：删除单条门店
+	链接：localhost:8080/elantrip-server/shop/deleteShop.do?
+	入参：shopId（int,非空，门店id）
+	返参：{"code": "0",
+  "message": "删除成功！",
+  "total": 0,
+  "result": 1}
+
+	3.
+	功能：批量删除门店
+	链接：localhost:8080/elantrip-server/shop/deleteShopBatch.do?
+	入参：shopIds（int,非空,以数组的方式传递，并非传一个数组过来）
+	返参：{"code": "0",
+  "message": "批量删除成功！",
+  "total": 0,
+  "result": 1}
+
+	4.
+	功能：查看详情
+	链接：localhost:8080/elantrip-server/shop/getShopById.do?
+	入参：shopId（int,非空,门店id）
+	返参：{"code": "0",
+  "message": "获取成功！",
+  "total": 1,
+  "result": ...}
+
+	5.
+	功能：获取门店列表
+	链接：localhost:8080/elantrip-server/shop/getShopList.do?
+	入参：
+		pageNum（int,非空,分页起始页）
+		pageSize（int,非空,每页获取条数）
+		keyWords（String,可选,筛选关键字，支持门店名称，城市，编号等模糊筛选）
+
+	返参：
+		{
+  "code": "0",
+  "message": "获取门店列表成功！",
+  "total": 421,
+  "result": [
+    {
+      "shopId": 1,
+      "sortIndex": 100000,
+      				"shopCode": "802",
+      		"shopName": "世纪城店",
+      "shopFullName": "北京旺市百利商业有限公司",
+      "shopType": 1,
+      "shopImage": 		"_ww.abc.jpg",
+      		"location": "北京		市海淀区板井路69号一层至负二层",
+      "city": "北京市",
+      "longitude": 116.278861,
+      		"latitude": 39.953233,
+      "activated": 		null,
+      		"deleted": null,
+      "updatedDate": null,
+      "createdDate": 		1544754339000
+    },
+    {
+      "shopId": 2,
+      "sortIndex": 2,
+      		"shopCode": "1034",
+      		"shopName": "建国路分店",
+      		"shopFullName": "北京沃尔玛百货有限公司建国路分店",
+      "shopType": 1,
+      "shopImage": "_ww.abc.jpg",
+  		"location": "北京市朝阳区建国路		93号院北京万达广场B座地下一、二层",
+      "city": "南京市",
+      "longitude": 116.471765,
+      "latitude": 		39.909399,
+      				"activated": null,
+      "deleted": null,
+      "updatedDate": null,
+      "createdDate": 1544754339000
+    }]}
+
+
+	6.
+	功能：根据经纬度获取门店列表
+	链接：localhost:8080/elantrip-server/shop/getShopListByLocation.do?
+	入参：
+		pageNum（int,非空,分页起始页）
+		pageSize（int,非空,每页获取条数）
+		longitude（double,非空,经度）
+		latitude（double,非空,纬度）
+
+	返参：
+		{
+  "code": "0",
+  "message": "获取门店列表成功！",
+  "total": 421,
+  "result": [
+    {
+      "shopId": 1,
+      "sortIndex": 100000,
+      				"shopCode": "802",
+      		"shopName": "世纪城店",
+      "shopFullName": "北京旺市百利商业有限公司",
+      "shopType": 1,
+      "shopImage": 		"_ww.abc.jpg",
+      		"location": "北京		市海淀区板井路69号一层至负二层",
+      "city": "北京市",
+      "longitude": 116.278861,
+      		"latitude": 39.953233,
+      "activated": 		null,
+      		"deleted": null,
+      "updatedDate": null,
+      "createdDate": 		1544754339000
+    },
+    {
+      "shopId": 2,
+      "sortIndex": 2,
+      		"shopCode": "1034",
+      		"shopName": "建国路分店",
+      		"shopFullName": "北京沃尔玛百货有限公司建国路分店",
+      "shopType": 1,
+      "shopImage": "_ww.abc.jpg",
+  		"location": "北京市朝阳区建国路		93号院北京万达广场B座地下一、二层",
+      "city": "南京市",
+      "longitude": 116.471765,
+      "latitude": 		39.909399,
+      				"activated": null,
+      "deleted": null,
+      "updatedDate": null,
+      "createdDate": 1544754339000
+    }]}
+
+
+
+
+banner相关
+	1.
+	功能：添加一个banner
+	链接：localhost:8080/elantrip-server/banner/addBanner.do?
+	入参：
+		bannerTitle（String,非空,标题）
+		jumpUrl（String,非空,跳转链接）
+		activated（int,非空,是否显示：1显示，2隐藏）
+		imageFile（File,非空,banner图片）
+	返参：{"code": "0",
+  "message": "添加广告成功！",
+  "total": 0,
+  "result": 1}
+
+	2.
+	功能：修改banner
+	链接：localhost:8080/elantrip-server/banner/modifyBanner.do?
+	入参：
+		bannerId(int,非空，服务尖id)
+		bannerTitle（String,可选,标题）
+		jumpUrl（String,可选,跳转链接）
+		activated（int,可选,是否显示：1显示，2隐藏）
+		imageFile（File,可选,banner图片）
+	返参：{"code": "0",
+  "message": "批量删除成功！",
+  "total": 0,
+  "result": 1}
+
+	3.
+	功能：获取banner详情
+	链接：localhost:8080/elantrip-server/banner/getBannerById.do?
+	入参：shopId（int,非空,bannerId）
+	返参：{"code": "0",
+  "message": "批量删除成功！",
+  "total": 1,
+  "result": ...}
+
+	4.
+	功能：获取banner列表
+	链接：localhost:8080/elantrip-server/banner/getBannerList.do?
+	入参：
+		pageNum（int,非空,分页起始页）
+		pageSize（int,非空,每页获取条数）
+		keyWords（String,可选,筛选关键字，支持banner标题筛选）
+	返参：
+		{
+			"code": "0",
+			"message": "获取广告列表成功！",
+			"total": 2,
+			"result": [
+			{
+			"bannerId": 3,
+			"imageUrl": "http://localhost:80/elantrip-upload/banner/154475994460108f4cdc8ceb79ae14fb8f45d55d814f9.jpg",
+			"bannerTitle": "测试标题",
+			"bannerType": 1,
+			"jumpUrl": "测试链接",
+			"activated": 1,
+			"deleted": null,
+			"updatedDate": null,
+			"createdDate": 1544759945000
+			},
+			{
+			"bannerId": 4,
+			"imageUrl": "http://localhost:80/elantrip-upload/banner/154475994949008f4cdc8ceb79ae14fb8f45d55d814f9.jpg",
+			"bannerTitle": "测试标题",
+			"bannerType": 1,
+			"jumpUrl": "测试链接",
+			"activated": 1,
+			"deleted": null,
+			"updatedDate": null,
+			"createdDate": 1544759955000
+			}
+			]
+		}
+
+
+	5.
+	功能：删除单条banner
+	链接：localhost:8080/elantrip-server/banner/deleteBanner.do?
+	入参：bannerId（int,非空，bannerId）
+	返参：{"code": "0",
+  "message": "删除成功！",
+  "total": 0,
+  "result": 1}
+
+	6.
+	功能：批量删除banner
+	链接：localhost:8080/elantrip-server/banner/deleteBannerBatch.do?
+	入参：bannerIds（int,非空,以数组的方式传递，并非传一个数组过来）
+	返参：{"code": "0",
+  "message": "批量删除成功！",
+  "total": 0,
+  "result": 1}
+
+
+
+
+
+
+服务相关
+	1.
+	功能：添加一个服务
+	链接：localhost:8080/elantrip-server/serve/addServe.do?
+	入参：
+		serveTitle（String,非空,标题）
+		jumpUrl（String,非空,跳转链接）
+		activated（int,非空,是否显示：1显示，2隐藏）
+		imageFile（File,非空,banner图片）
+		serveType(int，非空，服务类型:1金融服务，2家电服务，3手机服务，4娱乐生活服务)
+	返参：{"code": "0",
+  "message": "添加服务成功！",
+  "total": 0,
+  "result": 1}
+
+	2.
+	功能：修改服务
+	链接：localhost:8080/elantrip-server/serve/modifyServe.do?
+	入参：
+		serveId(int,非空，服务id)
+		serveTitle（String,可选,标题）
+		jumpUrl（String,可选,跳转链接）
+		activated（int,可选,是否显示：1显示，2隐藏）
+		imageFile（File,可选,banner图片）
+		serveType(int，可选，服务类型:1金融服务，2家电服务，3手机服务，4娱乐生活服务)
+	返参：{"code": "0",
+  "message": "批量删除成功！",
+  "total": 0,
+  "result": 1}
+
+	3.
+	功能：获取服务详情
+	链接：localhost:8080/elantrip-server/serve/getServeById.do?
+	入参：serveId（int,非空,服务id）
+	返参：{"code": "0",
+  "message": "获取成功！",
+  "total": 0,
+  "result": ...}
+
+	4.
+	功能：获取服务列表
+	链接：localhost:8080/elantrip-server/serve/getServeList.do?
+	入参：
+		pageNum（int,非空,分页起始页）
+		pageSize（int,非空,每页获取条数）
+		keyWords（String,可选,筛选关键字，支持服务标题筛选）
+	返参：
+		{....
+		}
+
+
+	5.
+	功能：删除单条服务
+	链接：localhost:8080/elantrip-server/serve/deleteServe.do?
+	入参：serveId（int,非空，serveId）
+	返参：{"code": "0",
+  "message": "删除成功！",
+  "total": 0,
+  "result": 1}
+
+	6.
+	功能：批量删除服务
+	链接：localhost:8080/elantrip-server/serve/deleteServeBatch.do?
+	入参：serveIds（int,非空,以数组的方式传递，并非传一个数组过来）
+	返参：{"code": "0",
+  "message": "批量删除成功！",
+  "total": 0,
+  "result": 1}
+
+
+
+统计相关
+	1.
+	功能：添加一个首页统计
+	链接：localhost:8080/elantrip-server/visit/addVisit.do?
+	入参：
+		shopId（int,非空,门店id）
+		dealerCode（String,可选,推销员编号）
+
+	返参：{"code": "0",
+  "message": "添加服务成功！",
+  "total": 0,
+  "result": 1}
+
+
+	2.
+	功能：获取服务列表
+	链接：localhost:8080/elantrip-server/visit/getVisitList.do?
+	入参：
+		pageNum（int,非空,分页起始页）
+		pageSize（int,非空,每页获取条数）
+		startTime（String,可选，时间范围--》开始时间（yyyy-MM-dd HH:mm:ss））
+		endTime（String,可选，时间范围--》结束时间（yyyy-MM-dd HH:mm:ss））
+		keyWords（String,可选,筛选关键字，支持服务标题筛选）
+	返参：
+		{....
+		}
+
+
+服务统计相关
+	1.
+	功能：添加一个服务统计
+	链接：localhost:8080/elantrip-server/serveVisit/addServeVisit.do?
+	入参：
+		shopId（int,非空,门店id）
+		serveId（int,非空,服务id）
+		dealerCode（String,可选,推销员编号）
+
+	返参：{"code": "0",
+  "message": "添加服务成功！",
+  "total": 0,
+  "result": 1}
+
+
+	2.
+	功能：获取服务列表
+	链接：localhost:8080/elantrip-server/serveVisit/getserveVisitList.do?
+	入参：
+		pageNum（int,非空,分页起始页）
+		pageSize（int,非空,每页获取条数）
+		startTime（String,可选，时间范围--》开始时间（yyyy-MM-dd HH:mm:ss））
+		endTime（String,可选，时间范围--》结束时间（yyyy-MM-dd HH:mm:ss））
+		keyWords（String,可选,筛选关键字，支持服务标题筛选）
+	返参：
+		{....
+		}
+

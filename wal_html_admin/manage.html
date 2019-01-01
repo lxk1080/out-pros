@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,initial-scale=1.0,user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<title>管理员列表</title>
+<link href="scripts/artdialog/ui-dialog.css" rel="stylesheet" type="text/css" />
+<link href="skin/default/style.css" rel="stylesheet" type="text/css" />
+<link href="css/pagination.css" rel="stylesheet" type="text/css" />
+  <!---->
+  <link href="css/iview.css" rel="stylesheet" type="text/css"/>
+  <link href="css/fix.css" rel="stylesheet" type="text/css"/>
+  <!---->
+<script type="text/javascript" src="scripts/jquery/jquery-1.11.2.min.js"></script>
+<script type="text/javascript" src="scripts/artdialog/dialog-plus-min.js"></script>
+<script type="text/javascript" charset="utf-8" src="js/laymain.js"></script>
+<script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+  <script type="text/javascript">
+    //<![CDATA[
+    var theForm = document.forms['form1'];
+    if (!theForm) {
+      theForm = document.form1;
+    }
+    function __doPostBack(eventTarget, eventArgument) {
+      if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+      }
+    }
+    //]]>
+  </script>
+</head>
+<body class="mainbody">
+<div id="app">
+<form method="post" action="manager_list.html" id="form1">
+  <!--导航栏-->
+  <div class="location"> <a href="javascript:history.back(-1);" class="back"><i></i><span>返回上一页</span></a> <a href="center.html" class="home"><i></i><span>首页</span></a> <i class="arrow"></i> <span>管理员列表</span> </div>
+  <!--/导航栏-->
+  <!--工具栏-->
+  <div id="floatHead" class="toolbar-wrap">
+    <div class="toolbar">
+      <div class="box-wrap"> <a class="menu-btn"></a>
+        <div class="l-list">
+          <ul class="icon-list">
+            <li><a class="add" href="manage_add.html"><i></i><span>新增</span></a></li>
+            <li><a class="all" href="javascript:;" @click="selectAll"><i></i><span>全选</span></a></li>
+            <li><a id="btnDelete" class="del" @click="deleteData"><i></i><span>删除</span></a></li>
+          </ul>
+        </div>
+        <div class="r-list">
+          <input name="txtKeywords" type="text" id="txtKeywords" class="keyword" v-model="keyWords" />
+          <a id="btnSearch" class="btn-search" @click="getData">查询</a> </div>
+      </div>
+    </div>
+  </div>
+  <!--/工具栏-->
+  <!--列表-->
+  <div class="table-container">
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="ltable">
+      <tr>
+        <th width="8%">选择</th>
+        <th align="left">用户名</th>
+        <th align="left" width="12%">角色</th>
+        <th align="left" width="12%">姓名</th>
+        <th align="left" width="12%">电话</th>
+        <th align="left" width="16%">添加时间</th>
+        <th width="8%">操作</th>
+      </tr>
+      <tr v-for="(item, index) in data.result">
+        <td align="center"><span class="checkall">
+        <input id="rptList_chkId_2" type="checkbox" name="rptList$ctl03$chkId" :value="item.adminId" v-model="checkboxItems" />
+        </span>
+          <input type="hidden" name="rptList$ctl03$hidId" id="rptList_hidId_2" value="9" />
+        </td>
+        <td v-cloak>{{item.adminName}}</td>
+        <td v-cloak>{{item.adminType === 1 ? '超级管理员' : item.adminType === 2 ? '门店管理员' : ''}}</td>
+        <td v-cloak>{{item.nickName}}</td>
+        <td v-cloak>{{item.mobile}}</td>
+        <td v-cloak>{{formatDate(item.createdDate, 'yyyy-MM-dd hh:mm:ss')}}</td>
+        <td align="center"><a href="javascript: void(0)" @click="edit(item)">修改</a></td>
+      </tr>
+    </table>
+  </div>
+  <!--/列表-->
+  <!--内容底部-->
+  <div class="line20"></div>
+  <div class="pagelist">
+    <!--<div class="l-btns"> <span>显示</span>
+      <input name="txtPageNum" type="text" value="10" onChange="javascript:setTimeout(&#39;__doPostBack(\&#39;txtPageNum\&#39;,\&#39;\&#39;)&#39;, 0)" onKeyPress="if (WebForm_TextBoxKeyHandler(event) == false) return false;" id="txtPageNum" class="pagenum" onKeyDown="return checkNumber(event);" />
+      <span>条/页</span> </div>
+    <div id="PageContent" class="default"></div>-->
+    <Page :total="data.total" :page-size-opts="[10,20,30,40]" @on-change="changePage"
+          @on-page-size-change="changePageSize" show-total show-sizer/>
+  </div>
+  <!--/内容底部-->
+</form>
+</div>
+
+<!---------------------------------------------------------------------------->
+
+<script src="scripts/vue/vue.js"></script>
+<script src="scripts/vue/vue-resource.min.js"></script>
+<script src="scripts/vue/iview.min.js"></script>
+<script>
+  var vm = new Vue({
+    el: '#app',
+    data: {
+      pageNum: 1,
+      pageSize: 10,
+      keyWords: '',
+      data: {result: []},
+      checkboxItems: [],
+    },
+    created: function () {
+      this.getData();
+    },
+    methods: {
+      getData: function () {
+        this.$http.post(commonIp + 'admin/getAdminList.do', {
+          pageNum: this.pageNum,
+          pageSize: this.pageSize,
+          keyWords: this.keyWords,
+        }, {emulateJSON: true}).then(function (res) {
+          if (res.body.code === successCode) {
+            console.log(res.body);
+
+            if (res.body.result) {
+              this.data = res.body;
+            }
+          } else {
+            window.alert(res.body.message);
+          }
+        }, function () {
+          window.alert('服务器错误');
+        })
+      },
+      checkboxChange: function (v) {
+        console.log(v);
+      },
+      changePage: function (v) {
+        this.pageNum = v;
+        this.getData();
+      },
+      changePageSize: function (v) {
+        this.pageSize = v;
+        this.getData();
+      },
+      changeIndex: function (id, index) {
+        this.$http.post(commonIp + 'shop/modifyShop.do', {
+          shopId: id,
+          sortIndex: index,
+        }, {emulateJSON: true}).then(function (res) {
+          if (res.body.code === successCode) {
+            this.getData();
+
+          } else {
+            this.$Message.error(res.body.message);
+          }
+        }, function () {
+          window.alert('服务器错误');
+        })
+      },
+      deleteData: function () {
+        const self = this;
+
+        if (!this.checkboxItems.length) {
+          this.$Message.warning('对不起，请选中您要操作的记录！');
+
+        } else {
+          this.$Modal.confirm({
+            title: '提示',
+            content: '<p>删除记录后不可恢复，您确定吗？</p>',
+            onOk: function () {
+              this.$http.post(commonIp + 'admin/deleteAdminBatch.do', {
+                adminIds: self.checkboxItems.join(','),
+              }, {emulateJSON: true}).then(function (res) {
+                if (res.body.code === successCode) {
+                  self.checkboxItems = [];
+                  self.getData();
+
+                } else {
+                  self.$Message.error(res.body.message);
+                }
+              }, function () {
+                window.alert('服务器错误');
+              })
+            },
+            onCancel: function () {
+              console.log('cancel');
+            }
+          });
+        }
+      },
+      selectAll: function() {
+        var self = this;
+        if (this.checkboxItems.length !== this.data.result.length) {
+          this.checkboxItems = [];
+          this.data.result.map(function(item) {
+            self.checkboxItems.push(item.adminId);
+          })
+        } else {
+          self.checkboxItems = [];
+        }
+      },
+      formatDate: function(date, fmt) {
+        if (date) {
+          date = new Date(date);
+        } else {
+          return date;
+        }
+
+        if (/(y+)/.test(fmt)) {
+          fmt = fmt.replace(RegExp.$1, (date.getFullYear() + '').substr(4 - RegExp.$1.length));
+        }
+        var o = {
+          'M+': date.getMonth() + 1,
+          'd+': date.getDate(),
+          'h+': date.getHours(),
+          'm+': date.getMinutes(),
+          's+': date.getSeconds()
+        };
+        for (var k in o) {
+          if (new RegExp('('+k+')').test(fmt)) {
+            var str = o[k] + '';
+            fmt = fmt.replace(RegExp.$1, (RegExp.$1.length === 1) ? str : this.padLeftZero(str));
+          }
+        }
+        return fmt;
+      },
+      padLeftZero: function (str) {
+        return ('00' + str).substr(str.length);
+      },
+      edit: function(item) {
+        sessionStorage.adminItem = JSON.stringify(item);
+        window.location.href = 'manage_change.html';
+      },
+    }
+  })
+</script>
+</body>
+</html>
+<script type="text/javascript" charset="utf-8" src="js/redirect.js"></script>

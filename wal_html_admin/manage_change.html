@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,initial-scale=1.0,user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<title>编辑管理员</title>
+<link href="scripts/artdialog/ui-dialog.css" rel="stylesheet" type="text/css" />
+<link href="skin/default/style.css" rel="stylesheet" type="text/css" />
+  <!---->
+  <link href="css/iview.css" rel="stylesheet" type="text/css"/>
+  <!--<link href="css/bootstrap.css" rel="stylesheet" type="text/css"/>-->
+  <!--<link href="css/fileinput.min.css" rel="stylesheet" type="text/css"/>-->
+  <link href="css/fix.css" rel="stylesheet" type="text/css"/>
+  <!---->
+<script type="text/javascript" src="scripts/jquery/jquery-1.11.2.min.js"></script>
+<script type="text/javascript" src="scripts/jquery/Validform_v5.3.2_min.js"></script>
+<script type="text/javascript" src="scripts/artdialog/dialog-plus-min.js"></script>
+<script type="text/javascript" charset="utf-8" src="js/laymain.js"></script>
+<script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+<script type="text/javascript">
+    $(function () {
+        //初始化表单验证
+        $("#form1").initValidform();
+    });
+</script>
+</head>
+<div class="mainbody">
+<div id="app">
+  <!--导航栏-->
+  <div class="location"> <a href="manager.html" class="back"><i></i><span>返回列表页</span></a> <a href="center.html" class="home"><i></i><span>首页</span></a> <i class="arrow"></i> <a href="manager_list.html"><span>管理员</span></a> <i class="arrow"></i> <span>编辑管理员</span> </div>
+  <div class="line10"></div>
+  <!--/导航栏-->
+  <!--内容-->
+  <div id="floatHead" class="content-tab-wrap">
+    <div class="content-tab">
+      <div class="content-tab-ul-wrap">
+        <ul>
+          <li><a class="selected" href="javascript:;">管理员信息</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="tab-content">
+    <dl>
+      <dt>管理角色</dt>
+      <dd>
+        <i-select v-model="adminType" style="width:200px" disabled>
+          <i-option value="">请选择</i-option>
+          <i-option :value="1">超级管理员</i-option>
+          <i-option :value="2">门店管理员</i-option>
+        </i-select>
+        <span class="Validform_checktip">* 不可修改</span></dd>
+      </dd>
+    </dl>
+    <dl>
+      <dt>用户名</dt>
+      <dd>
+        <i-input v-model="adminName" placeholder="请输入..." style="width: 300px" disabled></i-input>
+        <span class="Validform_checktip">* 不可修改</span></dd>
+    </dl>
+    <dl>
+      <dt>登录密码</dt>
+      <dd>
+        <i-input type="password" v-model="passWord" placeholder="请输入..." style="width: 300px"></i-input>
+        <span class="Validform_checktip">* 至少6位字符</span></dd>
+    </dl>
+    <dl>
+      <dt>确认密码</dt>
+      <dd>
+        <i-input type="password" v-model="confirmPwd" placeholder="请输入..." style="width: 300px" @on-blur="confirmBlur"></i-input>
+        <span class="Validform_checktip">* </span><span style="color: red;">{{ confirm_tip }}</span></dd>
+    </dl>
+    <dl>
+      <dt>姓名</dt>
+      <dd>
+        <i-input v-model="nickName" placeholder="请输入..." style="width: 300px"></i-input>
+      </dd>
+    </dl>
+    <dl>
+      <dt>电话</dt>
+      <dd>
+        <i-input v-model="mobile" placeholder="请输入..." style="width: 300px"></i-input>
+      </dd>
+    </dl>
+  </div>
+  <!--/内容-->
+  <!--工具栏-->
+  <div class="page-footer">
+    <div class="btn-wrap">
+      <input type="submit" name="btnSubmit" value="提交保存" id="btnSubmit" class="btn" @click="submit" />
+      <input name="btnReturn" type="button" value="返回上一页" class="btn yellow" onClick="javascript:history.back(-1);" />
+    </div>
+  </div>
+  <!--/工具栏-->
+</div>
+</div>
+
+<!---------------------------------------------------------------------------->
+
+<script src="js/common.js"></script>
+<script src="scripts/vue/vue.js"></script>
+<script src="scripts/vue/vue-resource.min.js"></script>
+<script src="scripts/vue/iview.min.js"></script>
+<script>
+  var vm = new Vue({
+    el: '#app',
+    data: {
+      adminId: '',
+      adminType: '',
+      adminName: '',
+      passWord: '',
+      confirmPwd: '',
+      nickName: '',
+      mobile: '',
+      confirm_tip: '',
+    },
+    mounted: function() {
+      var adminItem = JSON.parse(sessionStorage.adminItem);
+
+      this.adminId = adminItem.adminId;
+      this.adminType = adminItem.adminType;
+      this.adminName = adminItem.adminName;
+      this.passWord = adminItem.password;
+      this.confirmPwd = adminItem.password;
+      this.nickName = adminItem.nickName;
+      this.mobile = adminItem.mobile;
+    },
+    methods: {
+      confirmBlur: function() {
+        if (this.passWord !== this.confirmPwd) {
+          this.confirm_tip = '两次密码输入不一致';
+        } else {
+          this.confirm_tip = '';
+        }
+      },
+      verify: function() {
+        var flag = true;
+
+        if (!this.adminType) {
+          flag = false;
+        }
+
+        if (this.adminName.length < 2) {
+          flag = false;
+        }
+
+        if (this.passWord.length < 6) {
+          flag = false;
+        }
+
+        if (this.passWord !== this.confirmPwd) {
+          flag = false;
+        }
+
+        if (!flag) {
+          this.$Message.error('请按照要求完成填写！');
+        }
+
+        return flag;
+      },
+      submit: function() {
+        if (!this.verify()) return;
+
+        var self = this;
+        var oFormData = new FormData();
+
+        oFormData.append('adminId', this.adminId);
+        oFormData.append('passWord', this.passWord);
+        oFormData.append('nickName', this.nickName);
+        oFormData.append('mobile', this.mobile);
+
+        this.$http.post(commonIp + 'admin/modifyAdmin.do', oFormData, {emulateJSON: true}).then(function (res) {
+          // ...
+          console.log(res.body);
+
+          if (res.body.code === successCode) {
+            this.$Message.info(res.body.message);
+
+          } else {
+            this.$Message.error(res.body.message);
+          }
+        }, function () {
+          window.alert('服务器错误');
+        })
+      },
+    }
+  })
+</script>
+</body>
+</html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport"
+          content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,initial-scale=1.0,user-scalable=no"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <title>门店导入</title>
+    <link href="scripts/artdialog/ui-dialog.css" rel="stylesheet" type="text/css"/>
+    <link href="skin/default/style.css" rel="stylesheet" type="text/css"/>
+    <link href="skin/jquery-ui.min.css" rel="stylesheet" type="text/css"/>
+    <!---->
+    <link href="css/iview.css" rel="stylesheet" type="text/css"/>
+    <link href="css/bootstrap.css" rel="stylesheet" type="text/css"/>
+    <link href="css/fileinput.min.css" rel="stylesheet" type="text/css"/>
+    <link href="css/fix.css" rel="stylesheet" type="text/css"/>
+    <!---->
+    <script type="text/javascript" src="scripts/jquery/jquery-1.11.2.min.js"></script>
+    <script type="text/javascript" src="scripts/jquery/Validform_v5.3.2_min.js"></script>
+    <script type="text/javascript" src="scripts/artdialog/dialog-plus-min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="scripts/webuploader/webuploader.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/laymain.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/uploader.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/fileinput.js"></script>
+    <script type="text/javascript" src="js/fileinput-locales.js"></script>
+    <script type="text/javascript">
+      $(function () {
+        //初始化表单验证
+        $("#form1").initValidform();
+        //初始化上传控件
+        $(".upload-img").InitUploader({
+          sendurl: commonIp + 'shop/addShopBatch.do',
+          swf: "scripts/webuploader/uploader.swf",
+          filetypes: 'xlsx'
+        });
+
+        $('#txtFilePath').autocomplete({
+          source: function (request, response) {
+            $.ajax({
+              url: "tools/admin_ajax.html?action=getautoarticle&t=" + Math.random(),
+              dataType: "json",
+              data: {
+                name_startsWith: request.term
+              },
+              success: function (data) {
+                response($.map(data.rows, function (item) {
+                  return {
+                    label: item.title,
+                    value: item.title,
+                    id: item.id
+                  }
+                }));
+              }
+            });
+          },
+          select: function (event, ui) {
+            if (ui.item) {
+              $("#hidArticleId").val(ui.item.id);
+            }
+          }
+        });
+      });
+    </script>
+</head>
+<body class="mainbody">
+<div id="app">
+    <!--导航栏-->
+    <div class="location"><a href="store.html" class="back"><i></i><span>返回列表页</span></a> <a href="center.html"
+                                                                                             class="home"><i></i><span>首页</span></a>
+        <i class="arrow"></i> <span>门店导入</span></div>
+    <div class="line10"></div>
+    <!--/导航栏-->
+    <!--内容-->
+    <div id="floatHead" class="content-tab-wrap">
+        <div class="content-tab">
+            <div class="content-tab-ul-wrap">
+                <ul>
+                    <li><a href="javascript:;" onClick="tabs(this);" class="selected">门店导入</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="tab-content">
+        <dl>
+            <dt>数据模板</dt>
+            <dd><a href="http://www.schbar.com/activity-upload/shop-model.xlsx" target="_blank"> <span>下载门店数据模板</span> </a></dd>
+        </dl>
+        <dl>
+            <dt>上传文件</dt>
+            <dd>
+                <input id="file-id" type="file" class="file" name="shopFile" data-preview-file-type="text" ref="file" @change="fileChange">
+                <!--<input name="txtFilePath" type="text" id="txtFilePath" class="input normal upload-path"/>
+                <div class="upload-box upload-img"></div>-->
+                <span class="Validform_checktip">务必上传正确格式的Excel数据文件</span>
+            </dd>
+        </dl>
+    </div>
+    <!--/内容-->
+    <!--工具栏-->
+    <div class="page-footer">
+        <div class="btn-list">
+            <button type="submit" value="" class="btn" @click="submit">导入数据</button>
+            <input name="btnReturn" type="button" value="返回上一页" class="btn yellow"
+                   onClick="javascript: history.back(-1);"/>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <!--/工具栏-->
+</div>
+
+<!---------------------------------------------------------------------------->
+
+<script src="js/common.js"></script>
+<script src="scripts/vue/vue.js"></script>
+<script src="scripts/vue/vue-resource.min.js"></script>
+<script src="scripts/vue/iview.min.js"></script>
+<script>
+  var vm = new Vue({
+    el: '#app',
+    data: {
+      // ...
+    },
+    created: function () {
+    },
+    mounted: function () {
+      $("#file-id").fileinput({
+        language: 'zh', //设置语言
+        uploadUrl: commonIp + 'shop/addShopBatch.do', //上传的地址
+        allowedFileExtensions: ['xlsx'],//接收的文件后缀
+        uploadExtraData: {name: 'shopFile'}, //额外的数据
+        uploadAsync: true, //默认异步上传
+        showUpload: false, //是否显示上传按钮
+        showRemove: true, //显示移除按钮
+        showCaption: true,//是否显示标题
+        showPreview: false, //是否显示预览
+        browseClass: "btn btn-primary", //按钮样式
+        dropZoneEnabled: false,//是否显示拖拽区域
+        autoReplace: true, //是否自动替换当前图片，设置为true时，再次选择文件，会将当前的文件替换掉
+        //minImageWidth: 50, //图片的最小宽度
+        //minImageHeight: 50,//图片的最小高度
+        //maxImageWidth: 1000,//图片的最大宽度
+        //maxImageHeight: 1000,//图片的最大高度
+        //maxFileSize: 0, //最大文件大小，单位为kb，如果为0表示不限制文件大小
+        //minFileCount: 0,
+        maxFileCount: 2, //表示允许同时上传的最大文件个数
+        enctype: 'multipart/form-data',
+        validateInitialCount: true,
+        previewFileIcon: "<i class='glyphicon glyphicon-king'></i>",
+        msgFilesTooMany: "选择上传的文件数量({n}) 超过允许的最大数值{m}！",
+      });
+    },
+    methods: {
+      fileChange: function(e) {
+        // ...
+        console.log(e.target.files[0]);
+
+        if (e.target.files[0].name.indexOf('.xlsx') === -1 && e.target.files[0].name.indexOf('.xls') === -1) {
+          this.$Message.warning('请上传正确格式的Excel数据文件');
+          e.target.value = '';
+        }
+      },
+      submit: function () {
+        var file = this.$refs.file.files[0];
+
+        // ...
+        console.log(file);
+
+        var oFormData = new FormData();
+        oFormData.append('shopFile', file);
+
+        // ...
+        console.log('oFormData', oFormData);
+
+        this.$http.post(commonIp + 'shop/addShopBatch.do', oFormData, {emulateJSON: true}).then(function (res) {
+          // ...
+          console.log(res.body);
+
+          if (res.body.code === successCode) {
+            // this.data = res.body;
+            this.$Message.info(res.body.message);
+
+          } else {
+            this.$Message.error(res.body.message);
+          }
+        }, function () {
+          window.alert('服务器错误');
+        })
+      }
+    },
+  })
+</script>
+</body>
+</html>
+<script type="text/javascript" charset="utf-8" src="js/redirect.js"></script>

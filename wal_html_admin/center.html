@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,initial-scale=1.0,user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<title>管理首页</title>
+<link href="skin/default/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" charset="utf-8" src="scripts/jquery/jquery-1.11.2.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="js/layindex.js"></script>
+<script type="text/javascript" charset="utf-8" src="js/common.js"></script>
+<script type="text/javascript" charset="utf-8" src="http://toulangame.niwodai.com/wal_html_admin/js/echarts.min.js"></script>
+</head>
+<div class="mainbody">
+<div id="app">
+  <!--导航栏-->
+  <div class="location"> <a href="javascript:history.back(-1);" class="back"><i></i><span>返回上一页</span></a> <a class="home"><i></i><span>首页</span></a> <i class="arrow"></i> <span>数据看板</span> </div>
+  <!--/导航栏-->
+  <!--内容-->
+  <!--工具栏-->
+  <div id="floatHead" class="toolbar-wrap">
+    <div class="toolbar">
+      <div class="box-wrap"> <a class="menu-btn"></a>
+        <div class="l-list">
+          <ul class="icon-list">
+            <li><a href="javascript:;" class="curr" @click="changeType(7)"><span>近7天数据</span></a></li>
+            <li><a href="javascript:;" @click="changeType(30)"><span>近30天数据</span></a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--/工具栏-->
+  <div class="nlist-2">
+    <div class="line10"></div>
+    <div id="echarts" style="width:100%;height:450px;">
+    </div>
+  </div>
+</div>
+</div>
+
+<!---------------------------------------------------------------------------->
+
+<script src="js/common.js"></script>
+<script src="scripts/vue/vue.js"></script>
+<script src="scripts/vue/vue-resource.min.js"></script>
+<script src="scripts/vue/iview.min.js"></script>
+<script>
+  var vm = new Vue({
+    el: '#app',
+    data: {
+      dates: [],
+      weekVisitList: [],
+      weekServeVisitList: [],
+    },
+    mounted: function() {
+      this.getWeekVisitList(7);
+    },
+    methods: {
+      changeType: function(type) {
+        this.getWeekVisitList(type);
+      },
+
+      getWeekVisitList: function(days) {
+        var self = this;
+
+        this.$http.post(commonIp + 'visit/getWeekVisitList.do', { days: days }, {emulateJSON: true}).then(function (res) {
+          // ...
+          console.log(res.body);
+
+          if (res.body.code === successCode) {
+            this.dates = res.body.result.map(function(item) {
+              return self.formatDate(new Date(item.visitTime), 'yyyy/MM/dd');
+            }).reverse();
+
+            this.weekVisitList = res.body.result.map(function(item) {
+              return item.countVisit;
+            }).reverse();
+
+            this.getWeekServeVisitList(days);
+
+          } else {
+            this.$Message.error(res.body.message);
+          }
+        }, function () {
+          window.alert('服务器错误');
+        })
+      },
+
+      getWeekServeVisitList: function(days) {
+        this.$http.post(commonIp + 'serveVisit/getWeekServeVisitList.do', { days: days }, {emulateJSON: true}).then(function (res) {
+          // ...
+          console.log(res.body);
+
+          if (res.body.code === successCode) {
+            this.weekServeVisitList = res.body.result.map(function(item) {
+              return item.countVisit;
+            }).reverse();
+
+            this.initChart();
+          } else {
+            this.$Message.error(res.body.message);
+          }
+        }, function () {
+          window.alert('服务器错误');
+        })
+      },
+
+      initChart: function() {
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('echarts'));
+
+        // 指定图表的配置项和数据
+        var option = {
+          tooltip: {
+            trigger: 'axis'
+          },
+          legend: {
+            data:['服务点击','访问次数']
+          },
+          grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+          },
+          color: ['#C23531','#267CB7'],
+          xAxis: {
+            type: 'category',
+            boundaryGap: false,
+            data: this.dates,
+          },
+          yAxis: {
+            type: 'value'
+          },
+          series: [
+            {
+              name:'访问次数',
+              type:'line',
+              data:this.weekVisitList,
+            },
+            {
+              name:'服务点击',
+              type:'line',
+              data:this.weekServeVisitList,
+            },
+          ]
+        };
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+      },
+
+      formatDate: function(date, fmt) {
+        if (date) {
+          date = new Date(date);
+        } else {
+          return date;
+        }
+
+        if (/(y+)/.test(fmt)) {
+          fmt = fmt.replace(RegExp.$1, (date.getFullYear() + '').substr(4 - RegExp.$1.length));
+        }
+        var o = {
+          'M+': date.getMonth() + 1,
+          'd+': date.getDate(),
+          'h+': date.getHours(),
+          'm+': date.getMinutes(),
+          's+': date.getSeconds()
+        };
+        for (var k in o) {
+          if (new RegExp('('+k+')').test(fmt)) {
+            var str = o[k] + '';
+            fmt = fmt.replace(RegExp.$1, (RegExp.$1.length === 1) ? str : this.padLeftZero(str));
+          }
+        }
+        return fmt;
+      },
+
+      padLeftZero: function (str) {
+        return ('00' + str).substr(str.length);
+      },
+    }
+  })
+</script>
+</body>
+</html>

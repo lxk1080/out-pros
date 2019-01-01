@@ -1,0 +1,40 @@
+.location {
+    padding-bottom: 25px;
+}
+
+.toolbar .l-list .icon-list li a {
+    display: inline;
+}
+
+.multi-radio a {
+    height: inherit;
+}
+
+.radio-label {
+    padding: 6px 10px;
+    border: #ccc solid 1px;
+    border-radius: 5px;
+    margin-left: -1px;
+}
+
+.radio-label:hover {
+    color: #ffffff;
+    background: royalblue;
+}
+
+.radio-active {
+    color: #ffffff;
+    background: royalblue;
+}
+
+.file-caption-main {
+    width: 400px;
+}
+
+.form-control {
+    height: 32px;
+}
+
+[v-cloak] {
+    display: none;
+}
