@@ -1,0 +1,70 @@
+﻿一、扫码进入首页之后需要调用如下接口：
+	1.调用"获取banner列表"接口，将获取的banner列表放到滚动广告处。
+	2.调用"获取服务列表"的接口，将获取的服务列表，根据分类分别放入顶部的服务列表和中部的服务列表位置。
+	3.获取经纬度、门店编号调用"根据位置获取门店列表"的接口,将获取到的数据放入门店名称的位置（注意切换门店按钮的显示情况），
+	4.离开主页的时候调用"添加首页访问统计"接口，注意访问时长的计算。
+	5.进入二级页面的时候调用"添加服务访问统计"接口。
+	
+	
+二、接口：
+	1.获取bannerl列表：
+	功能：获取banner列表
+	链接：localhost:8080/activity-server/banner/getBannerList.do?
+	入参：
+		pageNum（int,非空,分页起始页）
+		pageSize（int,非空,每页获取条数）
+		keyWords（String,可选,筛选关键字，支持banner标题筛选）
+		
+	2.获取服务列表接口：
+	功能：获取服务列表
+	链接：localhost:8080/activity-server/serve/getServeList.do?
+	入参：
+		pageNum（int,非空,分页起始页）
+		pageSize（int,非空,每页获取条数）
+		keyWords（String,可选,筛选关键字，支持服务标题筛选）
+	返参说明：
+		serveType：1表示'栏目1类型' 放在首页顶部的服务列表中；2表示'栏目2类型' 放在首页中部服务列表中
+		
+		
+	3.根据位置获取门店列表
+	功能：根据经纬度获取门店列表
+	链接：localhost:8080/activity-server/shop/getShopListByLocation.do?
+	入参：
+		pageNum（int,非空,分页起始页）
+		pageSize（int,非空,每页获取条数）
+		longitude（double,可选,经度）
+		latitude（double,可选,纬度）
+		shopCode（String,可选，门店编号）
+	入参说明：
+		shopCode:获取途径：可从扫码后获取到的连接："http://www.walmart2019.com?mdhm=门店编号&rylx=员工类型&rybh=员工编号&ryxm=员工姓名"中获取
+	返参说明：
+		code:1表示根据门店id获取的结果，'切换城市'不需要显示
+		code:2表示通过经纬度或者系统推荐获取的结果'切换城市'需要展示，点击切换城市可以获取更多门店列表，
+		
+	4.添加首页访问统计
+	功能：添加首页访问记录
+	链接：localhost:8080/activity-server/visit/addVisit.do?
+	入参：
+		shopId（int,非空,门店Id）
+		dealerCode（String,可选,员工编号）
+		dealerType（int,可选，员工类型）
+		dealerName（String 可选，员工名称）
+		visitDuration(int,非空，访问时长，单位：秒)
+	入参说明：
+		shopId：可从根据位置获取门店信息的接口获取
+		dealerCode，dealerType，dealerName可从扫码进入首页的连接："http://www.walmart2019.com?mdhm=门店编号&rylx=员工类型&rybh=员工编号&ryxm=员工姓名"中获取
+		
+	5.添加服务访问统计
+	功能：添加首页访问记录
+	链接：localhost:8080/activity-server/serveVisit/addServeVisit.do?
+	入参：
+		serveId（int,飞空，服务id）:服务id可在点击具体服务的时候从服务列表中获取。
+		shopId（int,非空,门店Id）
+		dealerCode（String,可选,员工编号）
+		dealerType（int,可选，员工类型）
+		dealerName（String 可选，员工名称）
+		
+	入参说明：
+		shopId：可从根据位置获取门店信息的接口获取
+		dealerCode，dealerType，dealerName可从扫码进入首页的连接："http://www.walmart2019.com?mdhm=门店编号&rylx=员工类型&rybh=员工编号&ryxm=员工姓名"中获取
+		
