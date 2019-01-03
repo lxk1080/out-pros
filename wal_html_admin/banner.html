@@ -69,6 +69,7 @@
             <tr>
                 <th width="6%">编号</th>
                 <th align="left">Banner标题</th>
+                <th align="6%">Banner类型</th>
                 <th width="12%">展示状态</th>
                 <th width="16%" align="left">更新时间</th>
                 <th width="8%">操作</th>
@@ -81,6 +82,7 @@
                     <input type="hidden" name="rptList$ctl03$hidId" id="rptList_hidId_2" value="9"/>
                 </td>
                 <td>{{item.bannerTitle}}</td>
+                <td align="center">{{item.bannerType === 1 ? '轮播' : '横幅'}}</td>
                 <td align="center">{{item.activated === 1 ? '显示' : '隐藏'}}</td>
                 <td>{{formatDate(new Date(item.createdDate), 'yyyy-MM-dd hh:mm:ss')}}</td>
                 <td align="center"><a href="javascript: void(0)" @click="edit(item)">编辑</a></td>

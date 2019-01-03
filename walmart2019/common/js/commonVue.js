@@ -108,6 +108,10 @@ var vm = new Vue({
       this.$http.post(this.commonIp + '/visit/getLocation.do?', dataArgs, {emulateJSON: true}).then(function (res) {
         var data = JSON.parse(res.body.result);
 
+        if (!this._idWx()) {
+          this._getShooList('', '');
+        }
+
         wx.config({
           debug : false, // 生产环境需要关闭debug模式
           appId : data.appId, // appId通过微信服务号后台查看
@@ -195,8 +199,7 @@ var vm = new Vue({
 
       var dataArgs = {
         serveId: serveId,
-        // shopId: this.currentShop.shopId,
-        shopId: 1,
+        shopId: this.currentShop.shopId,
         dealerCode: query.rybh || '',
         dealerType: query.rylx || '',
         dealerName: query.ryxm || '',
@@ -217,7 +220,7 @@ var vm = new Vue({
 
       var dataArgs = {
         pageNum: 1,
-        pageSize: 10,
+        pageSize: 10000,
         longitude: lng,
         latitude: lat,
 		    shopCode: query.mdhm || '',
@@ -295,9 +298,14 @@ var vm = new Vue({
       val = val.replace('{ryxm}', query.ryxm || '');
       val = val.replace('{mdhm}', query.mdhm || '');
       val = val.replace('{rylx}', query.rylx || '');
-      val = val.replace('{ryhm}', query.ryhm || '');
+      val = val.replace('{ryhm}', query.rybh || '');
 
       return val;
+    },
+
+    _idWx: function() {
+      var ua = window.navigator.userAgent.toLowerCase();
+      return ua.indexOf('micromessenger') > -1;
     }
   },
 
@@ -308,7 +316,7 @@ var vm = new Vue({
       val = val.replace('{ryxm}', query.ryxm || '');
       val = val.replace('{mdhm}', query.mdhm || '');
       val = val.replace('{rylx}', query.rylx || '');
-      val = val.replace('{ryhm}', query.ryhm || '');
+      val = val.replace('{ryhm}', query.rybh || '');
 
       return val;
     }
