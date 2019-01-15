@@ -3,6 +3,7 @@ var vm = new Vue({
 
   data: {
     commonIp: 'http://www.walmart2019.com/activity-server',
+    // commonIp: 'http://192.168.1.104:8080/elantrip-server',
     query: {},
     latitude: '',
     longitude: '',
@@ -106,9 +107,12 @@ var vm = new Vue({
       };
 
       this.$http.post(this.commonIp + '/visit/getLocation.do?', dataArgs, {emulateJSON: true}).then(function (res) {
-        var data = JSON.parse(res.body.result);
+        var data = res.body.result;
 
-        if (!this._idWx()) {
+        // ...
+        // console.log(data);
+
+        if (!this._isWx()) {
           this._getShooList('', '');
         }
 
@@ -220,7 +224,7 @@ var vm = new Vue({
 
       var dataArgs = {
         pageNum: 1,
-        pageSize: 10000,
+        pageSize: 1000,
         longitude: lng,
         latitude: lat,
 		    shopCode: query.mdhm || '',
@@ -303,7 +307,7 @@ var vm = new Vue({
       return val;
     },
 
-    _idWx: function() {
+    _isWx: function() {
       var ua = window.navigator.userAgent.toLowerCase();
       return ua.indexOf('micromessenger') > -1;
     }
