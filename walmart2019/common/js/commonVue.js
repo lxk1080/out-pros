@@ -300,7 +300,7 @@ var vm = new Vue({
       var query = vm._urlParse();
 
       val = val.replace('{ryxm}', query.ryxm || '');
-      val = val.replace('{mdhm}', query.mdhm || '');
+      val = val.replace('{mdhm}', query.mdhm || this.currentShop.shopCode || '');
       val = val.replace('{rylx}', query.rylx || '');
       val = val.replace('{ryhm}', query.rybh || '');
 
