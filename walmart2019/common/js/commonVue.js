@@ -273,6 +273,7 @@ var vm = new Vue({
 
     _swiperInit: function() {
       var swiper = new Swiper('.swiper-container', {
+        autoplay:true,
         pagination: {
           el: '.swiper-pagination',
         },
