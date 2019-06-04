@@ -19,6 +19,7 @@ var vm = new Vue({
     city: 'default',
     second: parseInt(Math.random() * 5),
     visitId: '',
+    showLoading: true
   },
 
   mounted: function() {
@@ -113,7 +114,7 @@ var vm = new Vue({
         // console.log(data);
 
         if (!this._isWx()) {
-          this._getShooList('', '');
+          this._getShooList('', '')
         }
 
         wx.config({
@@ -126,6 +127,7 @@ var vm = new Vue({
         });
       }, function () {
         window.alert('server error: getLocation');
+        this.showLoading = false;
       });
 
       wx.error(function() {
@@ -251,6 +253,8 @@ var vm = new Vue({
           self.citys.push(key);
         }
 
+        this.showLoading = false;
+
         // 获取visitId，用以计时
         self.$http.post('http://www.walmart2019.com:8080/activity-server/visit/addVisit.do?', {
           shopId: this.currentShop.shopId,
@@ -268,6 +272,7 @@ var vm = new Vue({
 
       }, function () {
         window.alert('server error: getShopListByLocation');
+        this.showLoading = false;
       });
     },
 

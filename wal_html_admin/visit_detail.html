@@ -287,7 +287,15 @@
         for(var i = 0; i < data.length; i++) {
           var temp = [];
           for(var j = 0; j < titleForKey.length; j++) {
-            temp.push(data[i][titleForKey[j]]);
+            if (j === 5) {
+              if (!data[i]['dealerName'] || !data[i][titleForKey[j]]) {
+                temp.push('-');
+              } else {
+                temp.push(data[i]['dealerName'] + '(' + data[i][titleForKey[j]] + ')');
+              }
+            } else {
+              temp.push(data[i][titleForKey[j]]);
+            }
           }
           str.push(temp.join(",") + "\n");
         }

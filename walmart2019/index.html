@@ -11,6 +11,30 @@
 <link href="common/css/style.css" rel="stylesheet" type="text/css"/>
 <link href="common/css/swiper.min.css" rel="stylesheet" type="text/css"/>
 <link rel="stylesheet" href="common/jscrollbar/jquery.mCustomScrollbar.min.css" />
+<style>
+	.loading-wrapper {
+		position: fixed;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		background: rgba(0, 0, 0, 0.2);
+		z-index: 10;
+	}
+	.loading-icon {
+		position: fixed;
+		left: 0;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		width: 200px;
+		height: 100px;
+		background: url("./common/images/loading.gif") center no-repeat;
+		background-size: contain;
+		margin: auto;
+		z-index: 100;
+	}
+</style>
 <!--移动端版本兼容 -->
 <script type="text/javascript">
 	var phoneWidth = parseInt(window.screen.width);
@@ -112,6 +136,9 @@
 			</div>
 			</div>
 		</div>
+	</div>
+	<div class="loading-wrapper" v-show="showLoading">
+		<div class="loading-icon"></div>
 	</div>
 </div>
 <!--错误提示-->
